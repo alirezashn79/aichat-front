@@ -1,0 +1,79 @@
+.endChat {
+  padding-bottom: 100px;
+}
+.newForm {
+  width: 50%;
+  position: absolute;
+  bottom: 0;
+  background-color: #2c2937;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  padding-inline: 20px;
+  padding-block: 6px;
+  gap: 10px;
+
+  input {
+    flex: 1;
+    padding: 20px;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    color: #ececec;
+  }
+
+  button,
+  label {
+    border-radius: 50%;
+    background-color: transparent;
+    color: rgb(234, 234, 234);
+    border: none;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    img {
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+p,
+li {
+  margin: 10px 0px;
+}
+.message {
+  padding: 20px;
+  width: fit-content;
+  border-radius: 20px;
+  max-width: 50%;
+  word-wrap: break-word; /* اضافه کنیم */
+  overflow-wrap: break-word; /* برای ساپورت بیشتر */
+  white-space: normal; /* اطمینان از شکستن متن */
+
+  &.user {
+    background-color: #2c2937;
+    color: white;
+    max-width: 80%;
+    align-self: flex-end;
+  }
+}
+
+.textarea {
+  width: 100%;
+  resize: none;
+  overflow-y: auto;
+  max-height: 200px;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 16px;
+  line-height: 1.4;
+  border: none;
+  outline: none;
+  background-color: transparent;
+  color: white;
+  box-sizing: border-box;
+}

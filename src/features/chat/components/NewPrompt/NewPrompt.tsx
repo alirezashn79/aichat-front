@@ -1,25 +1,25 @@
-import { endpoints } from '@/api/endpoints';
-import upfetch from '@/api/instance';
-import { useGeminiChat } from '@/hooks/useGeminiChat';
-import { useRefresh } from '@/hooks/useRefresh';
-import '@/libs/gemini';
-import { cn } from '@/utils/cn';
-import { IKImage } from 'imagekitio-react';
-import { ArrowUp, StopCircle } from 'lucide-react';
-import { useEffect, useRef, useState, type FormEvent } from 'react';
-import MarkDown from 'react-markdown';
-import { ScaleLoader } from 'react-spinners';
-import type { IImage } from '../../types';
-import Upload from '../Upload';
-import styles from './NewPrompt.module.css';
-const urlEndpoint = import.meta.env.VITE_IMAGE_KIT_ENDPOINT;
+import { endpoints } from "@/api/endpoints";
+import upfetch from "@/api/instance";
+import { useGeminiChat } from "@/hooks/useGeminiChat";
+import { useRefresh } from "@/hooks/useRefresh";
+import "@/libs/gemini";
+import { cn } from "@/utils/cn";
+import { IKImage } from "imagekitio-react";
+import { ArrowUp, StopCircle } from "lucide-react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import MarkDown from "react-markdown";
+import { ScaleLoader } from "react-spinners";
+import type { IImage } from "../../types";
+import Upload from "../Upload";
+import styles from "./NewPrompt.module.css";
+const urlEndpoint = import.meta.env.VITE_PUBLIC_IMAGE_KIT_ENDPOINT;
 
 interface IProps {
   data: {
     _id: string;
     userId: string;
     history: Array<{
-      role: 'user' | 'model';
+      role: "user" | "model";
       parts: [{ _id: string; text: string }];
       img: string;
     }>;
@@ -27,8 +27,8 @@ interface IProps {
 }
 
 export default function NewPrompt({ data }: IProps) {
-  const [question, setQuestion] = useState('');
-  const [answer, setAnswer] = useState('');
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const history = data?.history.map((item) => ({
@@ -44,11 +44,11 @@ export default function NewPrompt({ data }: IProps) {
   const { sendMessage } = useGeminiChat({
     initialHistory: history,
   });
-  const refreshChat = useRefresh(['chat', data?._id]);
+  const refreshChat = useRefresh(["chat", data?._id]);
 
   const [img, setImg] = useState<IImage>({
     isLoading: false,
-    error: '',
+    error: "",
     dbData: null,
     file: null,
   });
@@ -67,7 +67,7 @@ export default function NewPrompt({ data }: IProps) {
     if (!isInitial) setQuestion(text);
     try {
       setIsLoading(true);
-      let finalAnswer = '';
+      let finalAnswer = "";
 
       await sendMessage(text, img.file, (streamedText) => {
         finalAnswer = streamedText;
@@ -80,16 +80,21 @@ export default function NewPrompt({ data }: IProps) {
       };
 
       await upfetch(`${endpoints.chatEndpoint.chat}/${data?._id}`, {
-        method: 'PUT',
+        method: "PUT",
+        headers: {
+          authorization: `Bearer ${
+            import.meta.env.VITE_PUBLIC_CLERK_SECRET_KEY
+          }`,
+        },
         body: payload,
         onSuccess: () => {
           refreshChat();
           formRef.current?.reset();
-          setQuestion('');
-          setAnswer('');
+          setQuestion("");
+          setAnswer("");
           setImg({
             isLoading: false,
-            error: '',
+            error: "",
             dbData: null,
             file: null,
           });
@@ -110,17 +115,17 @@ export default function NewPrompt({ data }: IProps) {
 
     try {
       const formData = new FormData(event.currentTarget);
-      const text = formData.get('text') as string;
+      const text = formData.get("text") as string;
 
       if (!text.trim()) return;
       setQuestion(text);
-      setAnswer('');
+      setAnswer("");
       inputRef.current?.focus();
       formRef.current?.reset();
 
       await sendMessageAndUpdateDB({ text, isInitial: false });
     } catch (err) {
-      console.error('خطا در ارسال پیام:', err);
+      console.error("خطا در ارسال پیام:", err);
     }
   };
 
@@ -137,12 +142,12 @@ export default function NewPrompt({ data }: IProps) {
   }, [data]);
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: 'smooth' });
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [data, question, answer, img.dbData, isLoading]);
 
   return (
     <>
-      {img.isLoading && <div className=''>loading...</div>}
+      {img.isLoading && <div className="">loading...</div>}
       {img?.dbData?.filePath && (
         <IKImage
           urlEndpoint={urlEndpoint}
@@ -160,32 +165,32 @@ export default function NewPrompt({ data }: IProps) {
         </div>
       )}
 
-      {isLoading && <ScaleLoader color='#fff' />}
+      {isLoading && <ScaleLoader color="#fff" />}
       <div className={styles.endChat} ref={endRef}></div>
       <form onSubmit={handleSubmit} className={styles.newForm} ref={formRef}>
         <Upload setImg={setImg} />
-        <input id='file' type='file' multiple={false} hidden />
+        <input id="file" type="file" multiple={false} hidden />
         <textarea
           autoFocus
-          name='text'
+          name="text"
           ref={inputRef}
-          placeholder='Ask anything...'
+          placeholder="Ask anything..."
           rows={1}
           className={styles.textarea}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
+            if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
               formRef.current?.requestSubmit();
             }
           }}
           onChange={(e) => {
             const textarea = e.target;
-            textarea.style.height = 'auto';
+            textarea.style.height = "auto";
             textarea.style.height = `${textarea.scrollHeight}px`;
           }}
         />
 
-        <button disabled={isLoading} type='submit'>
+        <button disabled={isLoading} type="submit">
           {isLoading ? <StopCircle size={18} /> : <ArrowUp size={18} />}
         </button>
       </form>

@@ -1,7 +1,7 @@
-import { endpoints } from '@/api/endpoints';
-import upfetch from '@/api/instance';
-import { useRefresh } from '@/hooks/useRefresh';
-import { useMutation } from '@tanstack/react-query';
+import { endpoints } from "@/api/endpoints";
+import upfetch from "@/api/instance";
+import { useRefresh } from "@/hooks/useRefresh";
+import { useMutation } from "@tanstack/react-query";
 
 interface IProps {
   data: {
@@ -14,13 +14,16 @@ interface IProps {
 
 async function mutationFn({ data, chatId }: IProps) {
   return upfetch(`${endpoints.chatEndpoint.chat}/${chatId}`, {
-    method: 'PUT',
+    method: "PUT",
     body: data,
+    headers: {
+      authorization: `Bearer ${import.meta.env.VITE_PUBLIC_CLERK_SECRET_KEY}`,
+    },
   });
 }
 
 export function usePostChat({ chatId }: { chatId: string }) {
-  const refreshChat = useRefresh(['chat', chatId]);
+  const refreshChat = useRefresh(["chat", chatId]);
 
   return useMutation({
     mutationFn,

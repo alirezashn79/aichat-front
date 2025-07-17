@@ -1,20 +1,23 @@
-import upfetch from '@/api/instance.ts';
-import { IKContext, IKUpload } from 'imagekitio-react';
-import { Paperclip } from 'lucide-react';
+import upfetch from "@/api/instance.ts";
+import { IKContext, IKUpload } from "imagekitio-react";
+import { Paperclip } from "lucide-react";
 import {
   type ChangeEvent,
   type Dispatch,
   type SetStateAction,
   useRef,
-} from 'react';
-import toast from 'react-hot-toast';
-import type { DbData, IImage } from '../types';
+} from "react";
+import toast from "react-hot-toast";
+import type { DbData, IImage } from "../types";
 
-const urlEndpoint = import.meta.env.VITE_IMAGE_KIT_ENDPOINT;
-const publicKey = import.meta.env.VITE_IMAGE_KIT_PUBLIC_KEY;
+const urlEndpoint = import.meta.env.VITE_PUBLIC_IMAGE_KIT_ENDPOINT;
+const publicKey = import.meta.env.VITE_PUBLIC_IMAGE_KIT_PUBLIC_KEY;
 
 const authenticator = async () => {
-  const data = await upfetch('/upload', {
+  const data = await upfetch("/upload", {
+    headers: {
+      authorization: `Bearer ${import.meta.env.VITE_PUBLIC_CLERK_SECRET_KEY}`,
+    },
     onError: (error, request) => {
       toast.error(`Request failed: ${request.text()}`);
       if (error instanceof TypeError) {
@@ -34,16 +37,16 @@ interface IProps {
 const Upload = ({ setImg }: IProps) => {
   const ikUploadRef = useRef<HTMLInputElement>(null);
   const onError = (err: string) => {
-    console.log('Error', err);
+    console.log("Error", err);
   };
 
   const onSuccess = (res: DbData) => {
-    console.log('Success', res);
+    console.log("Success", res);
     setImg((prev) => ({ ...prev, isLoading: false, dbData: res }));
   };
 
   const onUploadProgress = (progress: number) => {
-    console.log('Progress', progress);
+    console.log("Progress", progress);
   };
 
   const onUploadStart = (evt: ChangeEvent<HTMLInputElement>) => {
@@ -62,15 +65,16 @@ const Upload = ({ setImg }: IProps) => {
     <IKContext
       urlEndpoint={urlEndpoint}
       publicKey={publicKey}
-      authenticator={authenticator}>
+      authenticator={authenticator}
+    >
       <IKUpload
-        fileName='test-upload.png'
+        fileName="test-upload.png"
         onError={onError}
         onSuccess={onSuccess}
         useUniqueFileName={true}
         onUploadProgress={onUploadProgress}
         onUploadStart={onUploadStart}
-        style={{ display: 'none' }}
+        style={{ display: "none" }}
         ref={ikUploadRef}
       />
       {

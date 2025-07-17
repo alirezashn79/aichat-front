@@ -7,7 +7,7 @@ import {
   type GenerationConfig,
   type InlineDataPart,
   type Part,
-} from '@google/generative-ai';
+} from "@google/generative-ai";
 
 const safetySetting = [
   {
@@ -20,10 +20,12 @@ const safetySetting = [
   },
 ];
 
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_PUBLIC_KEY);
+const genAI = new GoogleGenerativeAI(
+  import.meta.env.VITE_PUBLIC_GEMINI_PUBLIC_KEY
+);
 
 const model = genAI.getGenerativeModel({
-  model: 'gemini-2.5-flash-preview-05-20',
+  model: "gemini-2.5-flash-preview-05-20",
   safetySettings: safetySetting,
 });
 
@@ -35,37 +37,37 @@ export default model;
 // فانکشن کمکی برای تشخیص نوع تصویر از محتوای فایل
 function getMimeTypeFromFile(file: File): string {
   // اگر مرورگر نوع فایل را تشخیص داده، از آن استفاده کن
-  if (file.type && file.type !== 'application/octet-stream') {
+  if (file.type && file.type !== "application/octet-stream") {
     return file.type;
   }
 
   // تشخیص بر اساس پسوند فایل
   const fileName = file.name.toLowerCase();
-  if (fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')) {
-    return 'image/jpeg';
-  } else if (fileName.endsWith('.png')) {
-    return 'image/png';
-  } else if (fileName.endsWith('.gif')) {
-    return 'image/gif';
-  } else if (fileName.endsWith('.webp')) {
-    return 'image/webp';
-  } else if (fileName.endsWith('.bmp')) {
-    return 'image/bmp';
+  if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) {
+    return "image/jpeg";
+  } else if (fileName.endsWith(".png")) {
+    return "image/png";
+  } else if (fileName.endsWith(".gif")) {
+    return "image/gif";
+  } else if (fileName.endsWith(".webp")) {
+    return "image/webp";
+  } else if (fileName.endsWith(".bmp")) {
+    return "image/bmp";
   }
 
   // پیش‌فرض
-  return 'image/jpeg';
+  return "image/jpeg";
 }
 
 // فانکشن کمکی برای اعتبارسنجی فایل تصویر
 export function isValidImageFile(file: File): boolean {
   const validTypes = [
-    'image/jpeg',
-    'image/jpg',
-    'image/png',
-    'image/gif',
-    'image/webp',
-    'image/bmp',
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "image/gif",
+    "image/webp",
+    "image/bmp",
   ];
 
   const mimeType = getMimeTypeFromFile(file);
@@ -74,21 +76,21 @@ export function isValidImageFile(file: File): boolean {
 
 // تایپ بازگشتی تابع به InlineDataPart تغییر یافته است
 export async function fileToBase64(
-  imageFile: File,
+  imageFile: File
 ): Promise<InlineDataPart | null> {
   if (!imageFile) return null;
 
   // بررسی اعتبار فایل تصویر
   if (!isValidImageFile(imageFile)) {
     throw new Error(
-      'فقط فایل‌های تصویری پشتیبانی می‌شوند (JPEG, PNG, GIF, WebP, BMP)',
+      "فقط فایل‌های تصویری پشتیبانی می‌شوند (JPEG, PNG, GIF, WebP, BMP)"
     );
   }
 
   // تشخیص نوع صحیح فایل
   const correctMimeType = getMimeTypeFromFile(imageFile);
 
-  console.log('File info:', {
+  console.log("File info:", {
     name: imageFile.name,
     size: imageFile.size,
     type: imageFile.type,
@@ -100,7 +102,7 @@ export async function fileToBase64(
     const reader = new FileReader();
     reader.onloadend = () => {
       const result = reader.result as string;
-      resolve(result.split(',')[1]);
+      resolve(result.split(",")[1]);
     };
     reader.onerror = reject;
     reader.readAsDataURL(imageFile);
@@ -114,7 +116,7 @@ export async function fileToBase64(
   };
 }
 
-import { useState, useRef } from 'react';
+import { useState, useRef } from "react";
 interface UseGeminiChatOptions {
   initialHistory?: Content[];
   generationConfig?: GenerationConfig;
@@ -130,26 +132,26 @@ export function useGeminiChat(options: UseGeminiChatOptions = {}) {
     model.startChat({
       history: [
         {
-          role: 'user',
+          role: "user",
           parts: [
             {
-              text: 'اسم تو هوش مصتوعی علیرضا هست. از این به بعد هر کس درباره تو پرسید اینو بگو',
+              text: "اسم تو هوش مصتوعی علیرضا هست. از این به بعد هر کس درباره تو پرسید اینو بگو",
             },
           ],
         },
         ...(options.initialHistory ? options.initialHistory : []),
       ],
       generationConfig: options.generationConfig || {},
-    }),
+    })
   );
 
   const sendMessage = async (
     text: string,
     file?: File | null,
-    onStream?: (chunk: string) => void,
+    onStream?: (chunk: string) => void
   ) => {
     if (!text.trim()) {
-      throw new Error('متن پیام نمی‌تواند خالی باشد');
+      throw new Error("متن پیام نمی‌تواند خالی باشد");
     }
 
     setIsLoading(true);
@@ -162,7 +164,7 @@ export function useGeminiChat(options: UseGeminiChatOptions = {}) {
       // اگر فایل وجود داشت، آن را به parts اضافه کن
       if (file) {
         if (!isValidImageFile(file)) {
-          throw new Error('لطفاً فقط فایل‌های تصویری انتخاب کنید');
+          throw new Error("لطفاً فقط فایل‌های تصویری انتخاب کنید");
         }
 
         const imageData = await fileToBase64(file);
@@ -174,7 +176,7 @@ export function useGeminiChat(options: UseGeminiChatOptions = {}) {
       // ارسال پیام
       const result = await chatRef.current.sendMessageStream(parts);
 
-      let accumulatedText = '';
+      let accumulatedText = "";
       for await (const chunk of result.stream) {
         const chunkText = chunk.text();
         accumulatedText += chunkText;
@@ -186,7 +188,7 @@ export function useGeminiChat(options: UseGeminiChatOptions = {}) {
 
       return accumulatedText;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'خطای نامشخص';
+      const errorMessage = err instanceof Error ? err.message : "خطای نامشخص";
       setError(errorMessage);
       throw err;
     } finally {
@@ -198,10 +200,10 @@ export function useGeminiChat(options: UseGeminiChatOptions = {}) {
     chatRef.current = model.startChat({
       history: [
         {
-          role: 'user',
+          role: "user",
           parts: [
             {
-              text: 'اسم تو هوش مصتوعی علیرضا هست. از این به بعد هر کس درباره اسم تو پرسید اینو بگو',
+              text: "اسم تو هوش مصتوعی علیرضا هست. از این به بعد هر کس درباره اسم تو پرسید اینو بگو",
             },
           ],
         },

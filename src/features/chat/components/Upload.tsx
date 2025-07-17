@@ -15,9 +15,6 @@ const publicKey = import.meta.env.VITE_PUBLIC_IMAGE_KIT_PUBLIC_KEY;
 
 const authenticator = async () => {
   const data = await upfetch("/upload", {
-    headers: {
-      authorization: `Bearer ${import.meta.env.VITE_PUBLIC_CLERK_SECRET_KEY}`,
-    },
     onError: (error, request) => {
       toast.error(`Request failed: ${request.text()}`);
       if (error instanceof TypeError) {

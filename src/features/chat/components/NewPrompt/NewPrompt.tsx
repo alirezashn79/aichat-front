@@ -12,6 +12,7 @@ import { ScaleLoader } from "react-spinners";
 import type { IImage } from "../../types";
 import Upload from "../Upload";
 import styles from "./NewPrompt.module.css";
+import { useAuth } from "@clerk/clerk-react";
 const urlEndpoint = import.meta.env.VITE_PUBLIC_IMAGE_KIT_ENDPOINT;
 
 interface IProps {
@@ -30,6 +31,7 @@ export default function NewPrompt({ data }: IProps) {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const { getToken } = useAuth();
 
   const history = data?.history.map((item) => ({
     role: item.role,
@@ -78,13 +80,12 @@ export default function NewPrompt({ data }: IProps) {
         answer: finalAnswer,
         img: img.dbData?.filePath || undefined,
       };
+      const token = await getToken();
 
       await upfetch(`${endpoints.chatEndpoint.chat}/${data?._id}`, {
         method: "PUT",
         headers: {
-          authorization: `Bearer ${
-            import.meta.env.VITE_PUBLIC_CLERK_SECRET_KEY
-          }`,
+          authorization: `Bearer ${token}`,
         },
         body: payload,
         onSuccess: () => {

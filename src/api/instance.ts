@@ -1,7 +1,7 @@
 import { up } from "up-fetch";
 
 const upfetch = up(fetch, () => ({
-  baseUrl: import.meta.env.VITE_PUBLIC_API_URL,
+  baseUrl: "http://localhost:3000/api",
   timeout: 30000,
   credentials: "include" as RequestCredentials,
 }));

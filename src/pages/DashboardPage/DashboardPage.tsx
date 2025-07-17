@@ -8,16 +8,19 @@ import { ArrowUp } from "lucide-react";
 import { useRef, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./dashboardPage.module.css";
+import { useAuth } from "@clerk/clerk-react";
 
 export default function DashboardPage() {
   const refreshuserChats = useRefresh(["user_chats"]);
   const navigate = useNavigate();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [text, setText] = useState("");
+  const { getToken } = useAuth();
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!text.trim()) return;
+    const token = await getToken();
 
     const result = await upfetch("/chats", {
       method: "POST",
@@ -27,7 +30,7 @@ export default function DashboardPage() {
         navigate(`/dashboard/chats/${id}`);
       },
       headers: {
-        authorization: `Bearer ${import.meta.env.VITE_PUBLIC_CLERK_SECRET_KEY}`,
+        authorization: `Bearer ${token}`,
       },
     });
     setText("");

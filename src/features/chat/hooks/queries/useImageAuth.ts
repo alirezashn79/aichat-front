@@ -1,6 +1,7 @@
-import { endpoints } from '@/api/endpoints';
-import upfetch from '@/api/instance';
-import { useQuery } from '@tanstack/react-query';
+import { endpoints } from "@/api/endpoints";
+import upfetch from "@/api/instance";
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@clerk/clerk-react";
 
 interface IProps {
   signature: string;
@@ -8,15 +9,20 @@ interface IProps {
   token: string;
 }
 
-async function queryFn(): Promise<IProps> {
-  const data = await upfetch<IProps>(`${endpoints.chatEndpoint.upload}`);
-  const { signature, expire, token } = data;
-  return { signature, expire, token };
-}
-
 export function useImageAuth() {
+  const { getToken } = useAuth();
+
   return useQuery({
-    queryKey: ['image-auth'],
-    queryFn,
+    queryKey: ["image-auth"],
+    queryFn: async (): Promise<IProps> => {
+      const token = await getToken();
+      const data = await upfetch<IProps>(`${endpoints.chatEndpoint.upload}`, {
+        headers: {
+          Authorization: `Bearer ${token ?? ""}`,
+        },
+      });
+      const { signature, expire, token: imageToken } = data;
+      return { signature, expire, token: imageToken };
+    },
   });
 }

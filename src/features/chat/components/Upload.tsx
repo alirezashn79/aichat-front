@@ -10,8 +10,8 @@ import {
 import toast from "react-hot-toast";
 import type { DbData, IImage } from "../types";
 
-const urlEndpoint = import.meta.env.VITE_PUBLIC_IMAGE_KIT_ENDPOINT;
-const publicKey = import.meta.env.VITE_PUBLIC_IMAGE_KIT_PUBLIC_KEY;
+const urlEndpoint = import.meta.env.VITE_IMAGE_KIT_ENDPOINT;
+const publicKey = import.meta.env.VITE_IMAGE_KIT_PUBLIC_KEY;
 
 const authenticator = async () => {
   const data = await upfetch("/upload", {

@@ -13,7 +13,7 @@ import type { IImage } from "../../types";
 import Upload from "../Upload";
 import styles from "./NewPrompt.module.css";
 import { useAuth } from "@clerk/clerk-react";
-const urlEndpoint = import.meta.env.VITE_PUBLIC_IMAGE_KIT_ENDPOINT;
+const urlEndpoint = import.meta.env.VITE_IMAGE_KIT_ENDPOINT;
 
 interface IProps {
   data: {
